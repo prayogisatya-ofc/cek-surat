@@ -8,15 +8,17 @@ use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\WargaController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function() {
-    return redirect()->route('publik.surat');
-});
+// 1. Ubah bagian ini untuk menampilkan halaman Landing Page
+Route::get('/', function () {
+    return view('landing'); // Pastikan file resources/views/landing.blade.php sudah ada
+})->name('landing');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'index'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 
+// Route untuk fitur Cek Surat (diakses dari tombol di Landing Page)
 Route::get('/cek-surat', [TrackingController::class, 'index'])->name('publik.surat');
 Route::post('/cek-surat/cari', [TrackingController::class, 'cari'])->name('publik.surat.cari');
 Route::get('/cek-surat/session', [TrackingController::class, 'session'])->name('publik.surat.session');
@@ -33,7 +35,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/pengajuan/{pengajuan}/status', [PengajuanController::class, 'updateStatus'])->name('pengajuan.status');
     Route::resource('pengajuan', PengajuanController::class)->names('pengajuan');
-    
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
