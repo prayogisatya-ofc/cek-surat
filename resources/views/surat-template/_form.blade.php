@@ -136,9 +136,15 @@
                                     placeholder="Placeholder input">
                             </td>
                             <td>
+                                @php
+                                    $optionsValue = data_get($field, 'options');
+                                    $optionsText = is_array($optionsValue)
+                                        ? implode("\n", $optionsValue)
+                                        : (is_string($optionsValue) ? $optionsValue : '');
+                                @endphp
                                 <textarea name="custom_fields[{{ $idx }}][options]" rows="1"
                                     class="form-control form-control-sm field-options"
-                                    placeholder="Pisahkan dengan enter atau koma">{{ implode("\n", data_get($field, 'options', [])) }}</textarea>
+                                    placeholder="Pisahkan dengan enter atau koma">{{ $optionsText }}</textarea>
                             </td>
                             <td class="text-center">
                                 <input class="form-check-input mt-2" type="checkbox"
