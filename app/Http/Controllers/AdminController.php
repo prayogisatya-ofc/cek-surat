@@ -14,9 +14,12 @@ class AdminController extends Controller
         $q = trim((string) $request->query('q', ''));
 
         $admins = User::query()
+            ->where('role', 'admin')
             ->when($q, function ($query) use ($q) {
-                $query->where('name', 'like', "%{$q}%")
-                    ->orWhere('username', 'like', "%{$q}%");
+                $query->where(function ($subQuery) use ($q) {
+                    $subQuery->where('name', 'like', "%{$q}%")
+                        ->orWhere('username', 'like', "%{$q}%");
+                });
             })
             ->latest()
             ->paginate(10)
@@ -42,6 +45,8 @@ class AdminController extends Controller
             'name' => $data['name'],
             'username' => $data['username'],
             'password' => Hash::make($data['password']),
+            'role' => 'admin',
+            'warga_id' => null,
         ]);
 
         return redirect()->route('admin.index')->with('success', 'Admin berhasil ditambahkan.');
@@ -49,11 +54,15 @@ class AdminController extends Controller
 
     public function edit(User $admin)
     {
+        abort_unless($admin->role === 'admin', 404);
+
         return view('admin.edit', compact('admin'));
     }
 
     public function update(Request $request, User $admin)
     {
+        abort_unless($admin->role === 'admin', 404);
+
         $data = $request->validate([
             'name' => ['required','string','max:150'],
             'username' => ['required','string','max:50','unique:users,username,'.$admin->id],
@@ -62,6 +71,8 @@ class AdminController extends Controller
 
         $admin->name = $data['name'];
         $admin->username = $data['username'];
+        $admin->role = 'admin';
+        $admin->warga_id = null;
 
         if (!empty($data['password'])) {
             $admin->password = Hash::make($data['password']);
@@ -74,6 +85,8 @@ class AdminController extends Controller
 
     public function destroy(User $admin)
     {
+        abort_unless($admin->role === 'admin', 404);
+
         if (Auth::id() === $admin->id) {
             return back()->with('error', 'Tidak bisa menghapus akun yang sedang login.');
         }

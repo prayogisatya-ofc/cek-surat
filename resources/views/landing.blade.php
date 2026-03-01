@@ -12,14 +12,14 @@
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/fonts/tabler-icons/tabler-icons.css') }}">
 
-    <title>{{ config('app.name', 'Desa Banding Agung') }} - Portal Resmi</title>
+    <title>Desa Banding Agung - Portal Resmi</title>
 </head>
 
 <body class="link-sidebar bg-light">
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm mb-4 py-3 sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold text-primary" href="#">
-                <i class="ti ti-building-community fs-6 me-2 align-middle"></i>
+                <i class="ti ti-building-community fs-5 me-2 align-middle"></i>
                 Desa Banding Agung
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -31,7 +31,7 @@
                     <li class="nav-item"><a class="nav-link" href="https://bandingagung-talangpadang.sipdeskel.id/pages/home/home.aspx">Profil Desa</a></li>
                     <li class="nav-item"><a class="nav-link" href="#layanan">Layanan</a></li>
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                        <a class="btn btn-primary btn-sm px-3 py-2" href="{{ route('login') }}">Login Admin</a>
+                        <a class="btn btn-primary px-3 py-2" href="{{ route('login') }}">Masuk</a>
                     </li>
                 </ul>
             </div>
@@ -68,40 +68,40 @@
                 <h4 class="fw-semibold mb-4 text-center">Layanan Mandiri Warga</h4>
                 <div class="row g-4">
                     <div class="col-lg-4 col-md-6">
-                        <div class="card h-100 shadow-sm border-0 hover-effect">
+                        <div class="card shadow-sm border-0 hover-effect">
                             <div class="card-body text-center py-4">
                                 <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex p-3 mb-3">
                                     <i class="ti ti-mail-search fs-7"></i>
                                 </div>
                                 <h5 class="fw-semibold">Cek Status Surat</h5>
                                 <p class="text-muted small">Lacak progres pengajuan surat administrasi Anda menggunakan NIK.</p>
-                                <a href="{{ url('/cek-surat') }}" class="btn btn-sm btn-light mt-2 w-100">Cek Sekarang</a>
+                                <a href="{{ url('/cek-surat') }}" class="btn bg-primary-subtle text-primary mt-2 w-100">Cek Sekarang</a>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-lg-4 col-md-6">
-                        <div class="card h-100 shadow-sm border-0">
+                        <div class="card shadow-sm border-0">
                             <div class="card-body text-center py-4">
                                 <div class="bg-success-subtle text-success rounded-circle d-inline-flex p-3 mb-3">
                                     <i class="ti ti-file-pencil fs-7"></i>
                                 </div>
                                 <h5 class="fw-semibold">Pengajuan Surat</h5>
                                 <p class="text-muted small">Ajukan pembuatan SKU, Surat Domisili, dan lainnya secara online.</p>
-                                <a href="#" class="btn btn-sm btn-light mt-2 w-100">Buat Surat</a>
+                                <a href="{{ route('pengajuan.create') }}" class="btn bg-primary-subtle text-primary mt-2 w-100">Buat Surat</a>
                             </div>
                         </div>
                     </div>
 
                     <div class="col-lg-4 col-md-6">
-                        <div class="card h-100 shadow-sm border-0">
+                        <div class="card shadow-sm border-0">
                             <div class="card-body text-center py-4">
                                 <div class="bg-warning-subtle text-warning rounded-circle d-inline-flex p-3 mb-3">
                                     <i class="ti ti-speakerphone fs-7"></i>
                                 </div>
                                 <h5 class="fw-semibold">Lapor / Pengaduan</h5>
                                 <p class="text-muted small">Sampaikan keluhan atau aspirasi Anda langsung ke pihak desa.</p>
-                                <a href="#" class="btn btn-sm btn-light mt-2 w-100">Lapor Sekarang</a>
+                                <a href="{{ route('pengaduan.create') }}" class="btn bg-primary-subtle text-primary mt-2 w-100">Lapor Sekarang</a>
                             </div>
                         </div>
                     </div>

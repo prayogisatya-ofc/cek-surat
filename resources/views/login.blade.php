@@ -50,7 +50,7 @@
                                             width="70">
                                     </div>
                                     <h3 class="fw-semibold mb-1">{{ config('app.name') }}</h3>
-                                    <p class="text-muted">Silahkan masuk ke panel admin</p>
+                                    <p class="text-muted">Silahkan masuk sebagai admin atau warga</p>
                                 </div>
 
                                 @if (session('error'))
@@ -75,7 +75,7 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('login') }}">
+                                <form method="POST" action="{{ route('login.post') }}">
                                     @csrf
 
                                     <div class="mb-3">
@@ -116,6 +116,10 @@
                                     <button type="submit" class="btn btn-primary w-100 py-2 fs-4 rounded-2 fw-bold">
                                         Login
                                     </button>
+
+                                    <div class="small text-muted mt-3">
+                                        Login warga: username = NIK, password awal = tanggal lahir format 07072003.
+                                    </div>
                                 </form>
                             </div>
                         </div>

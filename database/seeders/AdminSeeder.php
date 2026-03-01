@@ -19,6 +19,8 @@ class AdminSeeder extends Seeder
             [
                 'name' => 'Admin Desa',
                 'password' => Hash::make('admin123'),
+                'role' => 'admin',
+                'warga_id' => null,
             ]
         );
     }

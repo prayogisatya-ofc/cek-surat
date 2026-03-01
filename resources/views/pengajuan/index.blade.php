@@ -3,7 +3,7 @@
 @section('title', 'Pengajuan Surat')
 
 @section('content')
-    <div class="container-fluid" id="app">
+    <div class="container-fluid">
         <div class="card bg-primary-subtle shadow-none position-relative overflow-hidden mb-4">
             <div class="card-body px-4 py-3">
                 <div class="row align-items-center">
@@ -20,8 +20,7 @@
                     </div>
                     <div class="col-3">
                         <div class="text-end mb-n5">
-                            <img src="{{ asset('assets/images/backgrounds/banner.png') }}" class="img-fluid"
-                                style="width: 180px">
+                            <img src="{{ asset('assets/images/backgrounds/banner.png') }}" class="img-fluid" style="width: 180px">
                         </div>
                     </div>
                 </div>
@@ -53,35 +52,36 @@
                 <form action="" method="get" class="mb-4 pb-4 border-bottom">
                     <div class="row row-gap-3">
                         <div class="col-md-4">
-                            <input type="search" class="form-control" placeholder="Cari pengajuan surat..." name="q"
+                            <input type="search" class="form-control"
+                                placeholder="Cari nomor, template, nama warga, atau NIK..." name="q"
                                 value="{{ request('q') }}">
                         </div>
                         <div class="col-md-3">
                             <select class="form-select" name="status">
                                 <option value="">Semua Status</option>
                                 @foreach (['Diterima', 'Diproses', 'Ditolak', 'Selesai'] as $s)
-                                    <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>
-                                        {{ $s }}</option>
+                                    <option value="{{ $s }}" {{ $status === $s ? 'selected' : '' }}>{{ $s }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="col-md-5">
                             <div class="d-flex justify-content-end gap-2">
                                 <a href="{{ route('pengajuan.create') }}" class="btn btn-primary">
-                                    <i class="ti ti-plus me-1 ms-n1"></i> Tambah Surat
+                                    <i class="ti ti-plus me-1 ms-n1"></i> Ajukan Surat
                                 </a>
                             </div>
                         </div>
                     </div>
                 </form>
+
                 <div class="table-responsive">
-                    <table class="table w-100 text-nowrap">
+                    <table class="table w-100 text-nowrap align-middle">
                         <thead>
                             <tr>
                                 <th class="text-center" style="width: 60px">No</th>
-                                <th>Warga</th>
+                                <th>No Surat</th>
                                 <th>Jenis Surat</th>
-                                <th>Judul Surat</th>
+                                <th>Warga</th>
                                 <th>Status</th>
                                 <th>Dibuat</th>
                                 <th class="text-center">Aksi</th>
@@ -89,16 +89,24 @@
                         </thead>
                         <tbody>
                             @forelse ($pengajuan as $item)
-                                <tr class="align-middle">
+                                <tr>
                                     <td class="text-center">
                                         {{ ($pengajuan->currentPage() - 1) * $pengajuan->perPage() + $loop->iteration }}
                                     </td>
                                     <td>
-                                        <div style="font-weight:700" class="mb-1">{{ $item->warga->nama }}</div>
-                                        <div style="color:#6b7280;font-size:13px">NIK: {{ $item->warga->nik }}</div>
+                                        <div class="fw-semibold">{{ $item->nomor_surat ?: '-' }}</div>
+                                        @if ($item->suratTemplate)
+                                            <div class="small text-muted">No Jenis: {{ $item->suratTemplate->nomor_jenis }}</div>
+                                        @endif
                                     </td>
-                                    <td>{{ $item->jenis_surat }}</td>
-                                    <td>{{ $item->judul_surat }}</td>
+                                    <td>
+                                        <div class="fw-semibold">{{ $item->suratTemplate->nama ?? $item->jenis_surat }}</div>
+                                        <div class="small text-muted">{{ $item->judul_surat }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-semibold mb-1">{{ $item->warga->nama }}</div>
+                                        <div class="small text-muted">NIK: {{ $item->warga->nik }}</div>
+                                    </td>
                                     <td>
                                         @php
                                             $badge = match ($item->status) {
@@ -111,34 +119,35 @@
                                         @endphp
                                         <span class="badge fs-2 {{ $badge }}">{{ $item->status }}</span>
                                     </td>
-                                    <td>{{ $item->created_at->format('d/m/Y, H:i') }}</td>
+                                    <td>{{ $item->created_at?->format('d/m/Y H:i') }}</td>
                                     <td>
                                         <div class="d-flex justify-content-center gap-2">
-                                            <a href="{{ route('pengajuan.show', $item->id) }}"
-                                                class="btn btn-success btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Detail">
+                                            <a href="{{ route('pengajuan.show', $item->id) }}" class="btn btn-success btn-sm"
+                                                title="Detail">
                                                 <i class="ti ti-eye"></i>
                                             </a>
-                                            <a href="{{ route('pengajuan.edit', $item->id) }}"
-                                                class="btn btn-warning btn-sm" data-bs-toggle="tooltip"
-                                                data-bs-placement="top" title="Edit">
-                                                <i class="ti ti-edit"></i>
-                                            </a>
-                                            <form action="{{ route('pengajuan.destroy', $item->id) }}" method="post">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top" title="Hapus"
-                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus surat ini?')">
-                                                    <i class="ti ti-trash"></i>
-                                                </button>
-                                            </form>
+
+                                            @if (Auth::user()->isAdmin())
+                                                <a href="{{ route('pengajuan.edit', $item->id) }}" class="btn btn-warning btn-sm"
+                                                    title="Edit">
+                                                    <i class="ti ti-edit"></i>
+                                                </a>
+
+                                                <form action="{{ route('pengajuan.destroy', $item->id) }}" method="post"
+                                                    onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan ini?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Hapus">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">Belum ada data</td>
+                                    <td colspan="7" class="text-center text-muted">Belum ada data pengajuan surat.</td>
                                 </tr>
                             @endforelse
                         </tbody>

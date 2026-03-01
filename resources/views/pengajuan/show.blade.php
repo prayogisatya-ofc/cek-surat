@@ -1,6 +1,6 @@
 @extends('app')
 
-@section('title', 'Detail Surat')
+@section('title', 'Detail Pengajuan Surat')
 
 @section('content')
     <div class="container-fluid">
@@ -8,24 +8,22 @@
             <div class="card-body px-4 py-3">
                 <div class="row align-items-center">
                     <div class="col-9">
-                        <h4 class="fw-semibold mb-8">Detail Surat</h4>
+                        <h4 class="fw-semibold mb-8">Detail Pengajuan Surat</h4>
                         <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '/'">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item">
                                     <a class="text-muted text-decoration-none" href="{{ route('dashboard') }}">Dashboard</a>
                                 </li>
                                 <li class="breadcrumb-item">
-                                    <a class="text-muted text-decoration-none"
-                                        href="{{ route('pengajuan.index') }}">Pengajuan Surat</a>
+                                    <a class="text-muted text-decoration-none" href="{{ route('pengajuan.index') }}">Pengajuan Surat</a>
                                 </li>
-                                <li class="breadcrumb-item active text-primary" aria-current="page">Detail Surat</li>
+                                <li class="breadcrumb-item active text-primary" aria-current="page">Detail</li>
                             </ol>
                         </nav>
                     </div>
                     <div class="col-3">
                         <div class="text-end mb-n5">
-                            <img src="{{ asset('assets/images/backgrounds/banner.png') }}" class="img-fluid"
-                                style="width: 180px">
+                            <img src="{{ asset('assets/images/backgrounds/banner.png') }}" class="img-fluid" style="width: 180px">
                         </div>
                     </div>
                 </div>
@@ -54,34 +52,41 @@
 
         <div class="card mb-4">
             <div class="card-body">
+                @php
+                    $badge = match ($pengajuan->status) {
+                        'Diterima' => 'bg-info-subtle text-info',
+                        'Diproses' => 'bg-warning-subtle text-warning',
+                        'Ditolak' => 'bg-danger-subtle text-danger',
+                        'Selesai' => 'bg-success-subtle text-success',
+                        default => 'bg-secondary-subtle text-secondary',
+                    };
+                @endphp
+
                 <div class="d-flex flex-wrap gap-2 justify-content-between align-items-start">
                     <div>
-                        <h5 class="fw-semibold mb-2">{{ $pengajuan->judul_surat }}</h5>
-                        <div class="text-muted">
-                            Jenis: <span class="fw-semibold">{{ $pengajuan->jenis_surat }}</span>
-                        </div>
-                        <div class="text-muted mt-1">
-                            Status:
-                            @php
-                                $badge = match ($pengajuan->status) {
-                                    'Diterima' => 'bg-info-subtle text-info',
-                                    'Diproses' => 'bg-warning-subtle text-warning',
-                                    'Ditolak' => 'bg-danger-subtle text-danger',
-                                    'Selesai' => 'bg-success-subtle text-success',
-                                    default => 'bg-secondary-subtle text-secondary',
-                                };
-                            @endphp
-                            <span class="badge {{ $badge }}">{{ $pengajuan->status }}</span>
-                        </div>
+                        <h5 class="fw-semibold mb-2">{{ $pengajuan->suratTemplate->nama ?? $pengajuan->jenis_surat }}</h5>
+                        <div class="text-muted">No Surat: <span class="fw-semibold">{{ $pengajuan->nomor_surat ?: '-' }}</span></div>
+                        <div class="text-muted">Nomor Jenis: <span class="fw-semibold">{{ $pengajuan->suratTemplate->nomor_jenis ?? '-' }}</span></div>
+                        <div class="text-muted mt-1">Status: <span class="badge {{ $badge }}">{{ $pengajuan->status }}</span></div>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('pengajuan.edit', $pengajuan->id) }}" class="btn btn-outline-primary">
-                            <i class="ti ti-edit me-1"></i> Edit
-                        </a>
-                        <a href="{{ route('pengajuan.index') }}" class="btn bg-primary-subtle text-primary">
-                            Kembali
-                        </a>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (Auth::user()->isAdmin())
+                            <a href="{{ route('pengajuan.edit', $pengajuan->id) }}" class="btn btn-outline-primary">
+                                <i class="ti ti-edit me-1"></i>Edit
+                            </a>
+                            <a href="{{ route('pengajuan.download-docx', $pengajuan->id) }}" class="btn btn-primary">
+                                <i class="ti ti-file-download me-1"></i>Download DOCX
+                            </a>
+                        @endif
+
+                        @if (!empty($pengajuan->signed_pdf_path))
+                            <a href="{{ route('pengajuan.download-signed-pdf', $pengajuan->id) }}" class="btn btn-success">
+                                <i class="ti ti-file-download me-1"></i>Download PDF Final
+                            </a>
+                        @endif
+
+                        <a href="{{ route('pengajuan.index') }}" class="btn bg-primary-subtle text-primary">Kembali</a>
                     </div>
                 </div>
 
@@ -91,81 +96,112 @@
                     <div class="col-md-6">
                         <div class="fw-semibold mb-2">Data Warga</div>
                         <div class="d-flex flex-column gap-1">
-                            <div>
-                                <span class="text-muted">Nama:</span>
-                                <span class="fw-semibold">{{ $pengajuan->warga->nama }}</span>
-                            </div>
-                            <div>
-                                <span class="text-muted">NIK:</span>
-                                <span class="fw-semibold">{{ $pengajuan->warga->nik }}</span>
-                            </div>
-                            <div>
-                                <span class="text-muted">Tanggal Lahir:</span>
-                                <span class="fw-semibold">
-                                    {{ optional($pengajuan->warga->tanggal_lahir)->format('d/m/Y') }}
-                                </span>
-                            </div>
+                            <div><span class="text-muted">Nama:</span> <span class="fw-semibold">{{ $pengajuan->warga->nama }}</span></div>
+                            <div><span class="text-muted">NIK:</span> <span class="fw-semibold">{{ $pengajuan->warga->nik }}</span></div>
+                            <div><span class="text-muted">Tanggal Lahir:</span> <span class="fw-semibold">{{ optional($pengajuan->warga->tanggal_lahir)->format('d/m/Y') }}</span></div>
                         </div>
                     </div>
 
                     <div class="col-md-6">
                         <div class="fw-semibold mb-2">Informasi Pengajuan</div>
                         <div class="d-flex flex-column gap-1">
-                            <div>
-                                <span class="text-muted">Dibuat:</span>
-                                <span class="fw-semibold">{{ $pengajuan->created_at?->format('d/m/Y H:i') }}</span>
-                            </div>
-                            <div>
-                                <span class="text-muted">Terakhir Update:</span>
-                                <span class="fw-semibold">{{ $pengajuan->updated_at?->format('d/m/Y H:i') }}</span>
-                            </div>
+                            <div><span class="text-muted">Dibuat:</span> <span class="fw-semibold">{{ $pengajuan->created_at?->format('d/m/Y H:i') }}</span></div>
+                            <div><span class="text-muted">Terakhir Update:</span> <span class="fw-semibold">{{ $pengajuan->updated_at?->format('d/m/Y H:i') }}</span></div>
+                            <div><span class="text-muted">Urutan Per Jenis:</span> <span class="fw-semibold">{{ $pengajuan->nomor_urut_jenis ?: '-' }}</span></div>
                         </div>
                     </div>
                 </div>
+
+                @if (count($pengajuan->field_values ?? []) > 0)
+                    <hr class="my-4">
+                    <div class="fw-semibold mb-2">Data Dinamis Surat</div>
+                    <div class="row g-2">
+                        @foreach ($pengajuan->field_values as $key => $value)
+                            <div class="col-md-6">
+                                <div class="border rounded p-2">
+                                    <div class="small text-muted">{{ $fieldLabels[$key] ?? \Illuminate\Support\Str::headline($key) }}</div>
+                                    <div class="fw-semibold">{{ $value !== '' ? $value : '-' }}</div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="fw-semibold mb-3">Update Status & Catatan</h5>
-
-                <form action="{{ route('pengajuan.status', $pengajuan->id) }}" method="POST">
-                    @csrf
-
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <label class="form-label">Status<span class="text-danger">*</span></label>
-                            <select name="status" class="form-select @error('status') is-invalid @enderror">
-                                @foreach (['Diterima', 'Diproses', 'Ditolak', 'Selesai'] as $s)
-                                    <option value="{{ $s }}"
-                                        {{ old('status', $pengajuan->status) === $s ? 'selected' : '' }}>
-                                        {{ $s }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('status')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+        @if (Auth::user()->isAdmin())
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3">Upload PDF Final (Setelah TTD)</h5>
+                    <form action="{{ route('pengajuan.upload-signed-pdf', $pengajuan->id) }}" method="POST"
+                        enctype="multipart/form-data">
+                        @csrf
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">File PDF <span class="text-danger">*</span></label>
+                                <input type="file" name="signed_pdf" accept="application/pdf"
+                                    class="form-control @error('signed_pdf') is-invalid @enderror">
+                                @error('signed_pdf')
+                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Catatan Riwayat</label>
+                                <textarea name="deskripsi" rows="3" class="form-control @error('deskripsi') is-invalid @enderror"
+                                    placeholder="Contoh: Dokumen sudah ditandatangani kepala desa dan diunggah.">{{ old('deskripsi') }}</textarea>
+                                @error('deskripsi')
+                                    <span class="invalid-feedback"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
                         </div>
-
-                        <div class="col-md-8">
-                            <label class="form-label">Deskripsi / Catatan<span class="text-danger">*</span></label>
-                            <textarea name="deskripsi" rows="3" class="form-control @error('deskripsi') is-invalid @enderror"
-                                placeholder="Contoh: Sedang proses verifikasi berkas, menunggu tanda tangan, kades dinas luar, dll.">{{ old('deskripsi') }}</textarea>
-                            @error('deskripsi')
-                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                            @enderror
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="ti ti-upload me-1"></i>Upload PDF Final
+                            </button>
                         </div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-device-floppy me-1"></i> Simpan Update
-                        </button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="fw-semibold mb-3">Update Status & Catatan</h5>
+
+                    <form action="{{ route('pengajuan.status', $pengajuan->id) }}" method="POST">
+                        @csrf
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Status <span class="text-danger">*</span></label>
+                                <select name="status" class="form-select @error('status') is-invalid @enderror">
+                                    @foreach (['Diterima', 'Diproses', 'Ditolak', 'Selesai'] as $s)
+                                        <option value="{{ $s }}" {{ old('status', $pengajuan->status) === $s ? 'selected' : '' }}>
+                                            {{ $s }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('status')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+
+                            <div class="col-md-8">
+                                <label class="form-label">Deskripsi / Catatan <span class="text-danger">*</span></label>
+                                <textarea name="deskripsi" rows="3" class="form-control @error('deskripsi') is-invalid @enderror"
+                                    placeholder="Contoh: Berkas diverifikasi, menunggu tanda tangan, dll.">{{ old('deskripsi') }}</textarea>
+                                @error('deskripsi')
+                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-1"></i>Simpan Update</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
 
         <div class="card">
             <div class="card-body">
@@ -181,9 +217,7 @@
                                     <div class="fw-semibold">Catatan</div>
                                     <div class="text-muted small">{{ $h->created_at?->format('d/m/Y H:i') }}</div>
                                 </div>
-                                <div class="mt-2">
-                                    {!! nl2br(e($h->deskripsi)) !!}
-                                </div>
+                                <div class="mt-2">{!! nl2br(e($h->deskripsi)) !!}</div>
                                 <div class="text-muted small mt-2">
                                     @if ($h->user)
                                         Oleh: {{ $h->user->name }} ({{ $h->user->username }})

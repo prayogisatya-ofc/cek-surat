@@ -17,6 +17,8 @@ class User extends Authenticatable
         'name',
         'username',
         'password',
+        'role',
+        'warga_id',
     ];
 
     protected $hidden = [
@@ -29,5 +31,25 @@ class User extends Authenticatable
         return [
             'password' => 'hashed',
         ];
+    }
+
+    public function warga()
+    {
+        return $this->belongsTo(Warga::class, 'warga_id');
+    }
+
+    public function pengaduanDitangani()
+    {
+        return $this->hasMany(Pengaduan::class, 'ditangani_oleh');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isWarga(): bool
+    {
+        return $this->role === 'warga';
     }
 }

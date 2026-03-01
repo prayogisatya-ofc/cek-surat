@@ -1,4 +1,7 @@
 <aside class="left-sidebar with-vertical">
+    @php
+        $isAdmin = Auth::user()->isAdmin();
+    @endphp
     <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
             <a href="{{ route('dashboard') }}" class="text-nowrap logo-img">
@@ -21,43 +24,77 @@
 
                 <li class="sidebar-item">
                     <a class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                        href="{{ route('dashboard') }}" id="get-url" aria-expanded="false">
+                        href="{{ route('dashboard') }}"  aria-expanded="false">
                         <span><i class="ti ti-home"></i></span>
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
 
-                <li class="nav-small-cap">
-                    <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                    <span class="hide-menu">Master Data</span>
-                </li>
-
                 <li class="sidebar-item">
-                    <a class="sidebar-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
-                        href="{{ route('admin.index') }}" id="get-url" aria-expanded="false">
-                        <span><i class="ti ti-user-shield"></i></span>
-                        <span class="hide-menu">Data Admin</span>
+                    <a class="sidebar-link {{ request()->routeIs('profile.*') ? 'active' : '' }}"
+                        href="{{ route('profile.index') }}"  aria-expanded="false">
+                        <span><i class="ti ti-user-circle"></i></span>
+                        <span class="hide-menu">Profil</span>
                     </a>
                 </li>
 
-                <li class="sidebar-item">
-                    <a class="sidebar-link {{ request()->routeIs('warga.*') ? 'active' : '' }}"
-                        href="{{ route('warga.index') }}" id="get-url" aria-expanded="false">
-                        <span><i class="ti ti-users"></i></span>
-                        <span class="hide-menu">Data Warga</span>
-                    </a>
-                </li>
+                @if ($isAdmin)
+                    <li class="nav-small-cap">
+                        <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                        <span class="hide-menu">Master Data</span>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('admin.*') ? 'active' : '' }}"
+                            href="{{ route('admin.index') }}"  aria-expanded="false">
+                            <span><i class="ti ti-user-shield"></i></span>
+                            <span class="hide-menu">Data Admin</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('warga.*') && !request()->routeIs('warga.import.*') ? 'active' : '' }}"
+                            href="{{ route('warga.index') }}"  aria-expanded="false">
+                            <span><i class="ti ti-users"></i></span>
+                            <span class="hide-menu">Data Warga</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('warga.import.*') ? 'active' : '' }}"
+                            href="{{ route('warga.import.page') }}"  aria-expanded="false">
+                            <span><i class="ti ti-file-import"></i></span>
+                            <span class="hide-menu">Import Warga</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-item">
+                        <a class="sidebar-link {{ request()->routeIs('surat-template.*') ? 'active' : '' }}"
+                            href="{{ route('surat-template.index') }}" aria-expanded="false">
+                            <span><i class="ti ti-file-description"></i></span>
+                            <span class="hide-menu">Template Surat</span>
+                        </a>
+                    </li>
+                @endif
 
                 <li class="nav-small-cap">
                     <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                    <span class="hide-menu">Surat</span>
+                    <span class="hide-menu">Layanan</span>
                 </li>
 
                 <li class="sidebar-item">
                     <a class="sidebar-link {{ request()->routeIs('pengajuan.*') ? 'active' : '' }}"
-                        href="{{ route('pengajuan.index') }}" id="get-url" aria-expanded="false">
+                        href="{{ route('pengajuan.index') }}"  aria-expanded="false">
                         <span><i class="ti ti-files"></i></span>
                         <span class="hide-menu">Pengajuan Surat</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item">
+                    <a class="sidebar-link {{ request()->routeIs('pengaduan.*') ? 'active' : '' }}"
+                        href="{{ route('pengaduan.index') }}"  aria-expanded="false">
+                        <span><i class="ti ti-alert-square-rounded"></i></span>
+                        <span class="hide-menu">Lapor / Pengaduan</span>
                     </a>
                 </li>
             </ul>
@@ -75,7 +112,7 @@
                 </div>
                 <div class="john-title text-nowrap text-truncate">
                     <h6 class="mb-0 fs-4 fw-semibold text-truncate">{{ Auth::user()->name }}</h6>
-                    <span class="fs-2 text-capitalize">Administrator</span>
+                    <span class="fs-2 text-capitalize">{{ Auth::user()->role }}</span>
                 </div>
                 <button class="border-0 bg-transparent text-primary ms-auto" tabindex="0" type="submit"
                     form="logout-form" aria-label="logout" data-bs-toggle="tooltip" data-bs-placement="top"

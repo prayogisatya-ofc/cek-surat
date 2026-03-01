@@ -56,8 +56,19 @@
                                         </div>
                                         <div class="ms-3">
                                             <h5 class="mb-1 fs-4 fw-semibold">{{ Auth::user()->name }}</h5>
-                                            <span class="d-block text-capitalize">Administrator</span>
+                                            <span class="d-block text-capitalize">{{ Auth::user()->role }}</span>
                                         </div>
+                                    </div>
+                                    <div class="message-body">
+                                        <a href="{{ route('profile.index') }}" class="py-8 px-7 mt-8 d-flex align-items-center">
+                                            <span class="d-flex align-items-center justify-content-center text-bg-light rounded-1 p-6">
+                                                <img src="{{ asset('assets/images/svgs/icon-account.svg') }}" alt="modernize-img" width="24" height="24" />
+                                            </span>
+                                            <div class="w-100 ps-3">
+                                                <h6 class="mb-1 fs-3 fw-semibold lh-base">Profil Saya</h6>
+                                                <span class="fs-2 d-block text-body-secondary">Pengaturan Password</span>
+                                            </div>
+                                        </a>
                                     </div>
                                     <div class="d-grid py-4 px-7 pt-8">
                                         <form action="{{ route('logout') }}" method="post" id="logout-form">
